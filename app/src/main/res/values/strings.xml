@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kinerary</string>
+    <color name="background">#FF0E0F11</color>
+    <color name="ic_launcher_background">#FF000000</color>
+</resources>
