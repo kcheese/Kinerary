@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -328,7 +329,7 @@ private fun Legend(trip: Itinerary, settings: TripSettings, onClick: (String) ->
 }
 
 @Composable
-private fun DayPage(day: Day, color: Color, onOpenIndex: (String?) -> Unit) {
+private fun DayPage(day: Day, color: Color, onOpenIndex: (String?) -> Unit) = SelectionContainer {
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp)) {
         item {
             DayHeader(day, color, Modifier.padding(bottom = 12.dp))
@@ -461,57 +462,59 @@ private fun WholeTrip(
     val start = remember(rows) { rows.indexOfFirst { it is ListRow.DayHead && it.index == selected }.coerceAtLeast(0) }
     val state = rememberLazyListState(initialFirstVisibleItemIndex = start)
 
-    LazyColumn(state = state, modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
-        rows.forEachIndexed { position, row ->
-            when (row) {
-                is ListRow.Place -> item(key = "place-$position") {
-                    val color = locationColor(row.name, settings, trip) ?: NoLocation
-                    Text(
-                        row.name,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = color,
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 4.dp),
-                    )
-                }
-                is ListRow.DayHead -> stickyHeader(key = "day-${row.index}") {
-                    val day = trip.days[row.index]
-                    val color = colorOf(day)
-                    Surface(color = MaterialTheme.colorScheme.background) {
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .clickable { onOpenDay(row.index) }
-                                .padding(horizontal = 12.dp, vertical = 4.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(color.copy(alpha = 0.18f)),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Box(Modifier.width(5.dp).height(36.dp).background(color))
-                            Text(
-                                day.date.format(shortDate),
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(start = 10.dp).weight(1f),
-                            )
-                            Text(
-                                day.label,
-                                style = MaterialTheme.typography.labelMedium,
-                                color = color,
-                                modifier = Modifier.padding(end = 12.dp),
-                            )
+    SelectionContainer {
+        LazyColumn(state = state, modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 24.dp)) {
+            rows.forEachIndexed { position, row ->
+                when (row) {
+                    is ListRow.Place -> item(key = "place-$position") {
+                        val color = locationColor(row.name, settings, trip) ?: NoLocation
+                        Text(
+                            row.name,
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = color,
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 4.dp),
+                        )
+                    }
+                    is ListRow.DayHead -> stickyHeader(key = "day-${row.index}") {
+                        val day = trip.days[row.index]
+                        val color = colorOf(day)
+                        Surface(color = MaterialTheme.colorScheme.background) {
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onOpenDay(row.index) }
+                                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(color.copy(alpha = 0.18f)),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Box(Modifier.width(5.dp).height(36.dp).background(color))
+                                Text(
+                                    day.date.format(shortDate),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier.padding(start = 10.dp).weight(1f),
+                                )
+                                Text(
+                                    day.label,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = color,
+                                    modifier = Modifier.padding(end = 12.dp),
+                                )
+                            }
                         }
                     }
-                }
-                is ListRow.Entry -> item(key = "item-${row.day}-${row.index}") {
-                    val day = trip.days[row.day]
-                    Box(Modifier.padding(horizontal = 16.dp)) {
-                        ItemRow(
-                            row.item,
-                            colorOf(day),
-                            first = row.index == 0,
-                            last = row.index == day.items.lastIndex,
-                        ) { onOpenIndex(day.location) }
+                    is ListRow.Entry -> item(key = "item-${row.day}-${row.index}") {
+                        val day = trip.days[row.day]
+                        Box(Modifier.padding(horizontal = 16.dp)) {
+                            ItemRow(
+                                row.item,
+                                colorOf(day),
+                                first = row.index == 0,
+                                last = row.index == day.items.lastIndex,
+                            ) { onOpenIndex(day.location) }
+                        }
                     }
                 }
             }

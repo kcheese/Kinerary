@@ -82,48 +82,49 @@ fun BlockView(block: Block, color: Color, onChange: (Block) -> Unit) {
 private fun TableView(table: Block.Table, color: Color) {
     if (table.rows.isEmpty()) return
     val columns = table.columns
-    // Columns as wide as their longest line, within limits; text wraps beyond that
-    val widths = (0 until columns).map { c ->
+    // The table fits the screen width: columns share it by their longest line, within limits, so
+    // short columns stay narrow and long text wraps downwards
+    val weights = (0 until columns).map { c ->
         val longest = table.rows.maxOf { row ->
             row.getOrNull(c).orEmpty().replace(Regex("""\[([^\]]+)]\([^)]+\)"""), "$1").length
         }
-        (longest * 8 + 24).coerceIn(72, 240).dp
+        longest.coerceIn(6, 30).toFloat()
     }
     val border = MaterialTheme.colorScheme.outlineVariant
-    Box(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
-        Column(
-            Modifier
-                .clip(RoundedCornerShape(10.dp))
-                .border(1.dp, border, RoundedCornerShape(10.dp))
-        ) {
-            table.rows.forEachIndexed { r, row ->
-                val header = r == 0
-                Row(
-                    Modifier
-                        .height(IntrinsicSize.Min)
-                        .background(
-                            when {
-                                header -> color.copy(alpha = 0.22f)
-                                r % 2 == 0 -> MaterialTheme.colorScheme.surfaceContainerLow
-                                else -> Color.Transparent
-                            }
-                        )
-                ) {
-                    for (c in 0 until columns) {
-                        if (c > 0) Box(Modifier.width(1.dp).fillMaxHeight().background(border))
-                        LinkText(
-                            row.getOrNull(c).orEmpty(),
-                            Modifier.width(widths[c]).padding(horizontal = 10.dp, vertical = 8.dp),
-                            style = if (header) {
-                                MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
-                            } else {
-                                MaterialTheme.typography.bodyMedium
-                            },
-                        )
-                    }
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, border, RoundedCornerShape(10.dp))
+    ) {
+        table.rows.forEachIndexed { r, row ->
+            val header = r == 0
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+                    .background(
+                        when {
+                            header -> color.copy(alpha = 0.22f)
+                            r % 2 == 0 -> MaterialTheme.colorScheme.surfaceContainerLow
+                            else -> Color.Transparent
+                        }
+                    )
+            ) {
+                for (c in 0 until columns) {
+                    if (c > 0) Box(Modifier.width(1.dp).fillMaxHeight().background(border))
+                    LinkText(
+                        row.getOrNull(c).orEmpty(),
+                        Modifier.weight(weights[c]).padding(horizontal = 8.dp, vertical = 8.dp),
+                        style = if (header) {
+                            MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
+                        } else {
+                            MaterialTheme.typography.bodyMedium
+                        },
+                    )
                 }
-                if (r < table.rows.lastIndex) Box(Modifier.fillMaxWidth().height(1.dp).background(border))
             }
+            if (r < table.rows.lastIndex) Box(Modifier.fillMaxWidth().height(1.dp).background(border))
         }
     }
 }

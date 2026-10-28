@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -329,7 +330,10 @@ private fun PageContent(
                     BlockEditor(block, color) { editBlock(block.id, it) }
                 }
             } else {
-                BlockView(block, color) { editBlock(block.id, it) }
+                // Long-press to select and copy
+                SelectionContainer {
+                    BlockView(block, color) { editBlock(block.id, it) }
+                }
             }
         }
         if (editing) {

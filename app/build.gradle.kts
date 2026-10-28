@@ -27,8 +27,8 @@ android {
         applicationId = "com.kyle.kinerary"
         minSdk = 26
         targetSdk = 36
-        versionCode = 100
-        versionName = "1.0.0"
+        versionCode = 101
+        versionName = "1.0.1"
 
         buildConfigField("String", "SYNC_SERVER", "\"$syncServer\"")
         // GitHub repo whose releases the app updates from (empty turns the updater off)
